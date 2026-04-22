@@ -7,74 +7,152 @@
 
 .main {
   flex: 1;
-  max-width: 1100px;
-  width: 100%;
+  padding: 24px;
+}
+
+.content {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 24px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
 }
 
-.panels {
+.pageTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px;
+}
+
+.layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 340px;
   gap: 24px;
+  align-items: start;
 }
 
-.panel {
+/* FORM CARD */
+.formCard {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 16px;
 }
 
-.label {
+.sectionHeader {
   font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  align-self: flex-start;
+  font-weight: 700;
+  color: #c0392b;
+  padding-top: 8px;
 }
 
-.placeholder {
-  width: 100%;
-  height: 360px;
-  background: #d9d9d9;
-  border-radius: 8px;
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fieldGroup {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 600;
-  color: #555;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.button {
-  padding: 12px 36px;
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #c0392b;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+.hint {
+  font-size: 11px;
+  color: #888;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rowWithBtn {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.rowWithBtn .input {
+  flex: 1;
+}
+
+.deleteBtn {
+  padding: 8px 16px;
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.deleteBtn:hover {
+  background: #a93226;
+}
+
+.addBtn {
+  padding: 8px 16px;
   background: #c0392b;
   color: #fff;
   border: none;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  align-self: flex-start;
   transition: background 0.2s;
 }
 
-.button:hover {
+.addBtn:hover {
   background: #a93226;
 }
 
-.instruction {
-  width: 100%;
-  height: 200px;
-  background: #d9d9d9;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 600;
-  color: #555;
+/* PREVIEW */
+.preview {
+  background: #fff;
+  border-radius: 12px;
+  min-height: 400px;
+  position: sticky;
+  top: 24px;
 }

@@ -4,6 +4,8 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import CreateXML from './pages/CreateXML'
+import CreateIFC from './pages/CreateIFC'
+import Templates from './pages/Templates'
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/create-xml" element={<CreateXML />} />
+        <Route path="/create-ifc" element={<CreateIFC />} />
+        <Route path="/templates" element={<Templates />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

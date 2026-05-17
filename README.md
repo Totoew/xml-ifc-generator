@@ -52,6 +52,16 @@ npm run lint
 npm run build
 ```
 
+## CI
+
+В репозитории настроен GitHub Actions workflow `.github/workflows/ci.yml`.
+Он запускается на `push` в `main`/`master` и на pull request.
+
+Проверки CI:
+
+- backend restore, build, tests;
+- frontend `npm ci`, lint, build.
+
 ## Первый реализованный сценарий
 
 Страница `/create-xml` отправляет данные формы на backend endpoint:
@@ -86,6 +96,6 @@ POST /api/xml/parse
 ## Ближайшие задачи
 
 1. Вынести XSD-схему из кода в отдельный файл или хранилище шаблонов.
-2. Настроить CI: backend build, frontend build, lint, tests.
-3. Добавить более точное сопоставление ошибок валидации с полями формы.
-4. Добавить frontend-тесты для upload/create XML сценариев.
+2. Добавить более точное сопоставление ошибок валидации с полями формы.
+3. Добавить frontend-тесты для upload/create XML сценариев.
+4. Подготовить Docker Compose для локального и серверного запуска.

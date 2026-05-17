@@ -2,7 +2,6 @@ import Navbar from '../components/Navbar'
 import styles from './Templates.module.css'
 
 const xmlTemplates = Array(5).fill('Описание шаблона')
-const ifcTemplates = Array(5).fill('Описание шаблона')
 
 function TemplateCard({ description }) {
   return (
@@ -30,17 +29,6 @@ export default function Templates() {
           </div>
         </section>
 
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Шаблоны IFC</h2>
-          <div className={styles.grid}>
-            {ifcTemplates.map((desc, i) => (
-              <TemplateCard key={i} description={desc} />
-            ))}
-          </div>
-          <div className={styles.moreRow}>
-            <button className={styles.moreBtn}>Ещё</button>
-          </div>
-        </section>
       </main>
     </div>
   )

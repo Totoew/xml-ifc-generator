@@ -16,9 +16,6 @@ export default function Navbar() {
         <NavLink to="/create-xml" className={({ isActive }) => isActive ? `${styles.link} ${styles.active}` : styles.link}>
           СОЗДАТЬ XML
         </NavLink>
-        <NavLink to="/create-ifc" className={({ isActive }) => isActive ? `${styles.link} ${styles.active}` : styles.link}>
-          СОЗДАТЬ IFC
-        </NavLink>
         <NavLink to="/templates" className={({ isActive }) => isActive ? `${styles.link} ${styles.active}` : styles.link}>
           ШАБЛОНЫ
         </NavLink>

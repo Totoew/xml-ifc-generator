@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Navbar from '../components/Navbar'
+import { generateXml } from '../api/xmlApi'
 import styles from './CreateXML.module.css'
 
 function useList(initial = ['']) {
@@ -44,6 +45,71 @@ export default function CreateXML() {
   const team = useList(['', ''])
   const [workType, setWorkType] = useState('')
   const purposes = useList(['', ''])
+  const [fileName, setFileName] = useState('construction-project.xml')
+  const [result, setResult] = useState({ xml: '', isValid: false, errors: [] })
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [apiError, setApiError] = useState('')
+
+  const payload = useMemo(() => ({
+    basic: {
+      name: basic.name,
+      registrationNumber: basic.regNum,
+      date: basic.date,
+      uuid: basic.uuid,
+      address: basic.address,
+    },
+    organization: {
+      name: org.name,
+      manager: org.manager,
+    },
+    workType,
+    cadastralNumbers: cadastral.items,
+    gpzuNumbers: gpzu.items,
+    pptNumbers: ppt.items,
+    gzkNumbers: gzk.items,
+    krtNumbers: krt.items,
+    ppmNumbers: ppm.items,
+    teamMembers: team.items,
+    functionalPurposes: purposes.items,
+  }), [basic, cadastral.items, gpzu.items, gzk.items, krt.items, org, ppm.items, ppt.items, purposes.items, team.items, workType])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(async () => {
+      setIsGenerating(true)
+      setApiError('')
+
+      try {
+        const generated = await generateXml(payload)
+        setResult(generated)
+      } catch (error) {
+        setApiError(error.message)
+      } finally {
+        setIsGenerating(false)
+      }
+    }, 300)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [payload])
+
+  const exportXml = () => {
+    if (!result.isValid || !result.xml) {
+      return
+    }
+
+    const blob = new Blob([result.xml], { type: 'application/xml;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName.trim() || 'construction-project.xml'
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const copyXml = async () => {
+    if (result.xml) {
+      await navigator.clipboard.writeText(result.xml)
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -82,7 +148,7 @@ export default function CreateXML() {
                 </div>
               </div>
               <div className={styles.fieldGroup}>
-                <label className={styles.label}>Адресс</label>
+                <label className={styles.label}>Адрес</label>
                 <input className={`${styles.input} ${styles.fullWidth}`} value={basic.address} onChange={e => setBasic({ ...basic, address: e.target.value })} />
                 <span className={styles.hint}>адрес/описание местоположения объекта</span>
               </div>
@@ -158,7 +224,54 @@ export default function CreateXML() {
             </div>
 
             {/* PREVIEW */}
-            <div className={styles.preview} />
+            <aside className={styles.preview}>
+              <div className={styles.previewHeader}>
+                <div>
+                  <h2 className={styles.previewTitle}>XML</h2>
+                  <span className={result.isValid ? styles.validStatus : styles.invalidStatus}>
+                    {isGenerating ? 'Проверка...' : result.isValid ? 'Валиден' : 'Есть ошибки'}
+                  </span>
+                </div>
+                <button className={styles.copyBtn} type="button" onClick={copyXml} disabled={!result.xml}>
+                  Копировать
+                </button>
+              </div>
+
+              <div className={styles.exportBlock}>
+                <label className={styles.label}>Имя файла</label>
+                <input
+                  className={styles.input}
+                  value={fileName}
+                  onChange={(e) => setFileName(e.target.value)}
+                />
+                <button
+                  className={styles.exportBtn}
+                  type="button"
+                  onClick={exportXml}
+                  disabled={!result.isValid}
+                >
+                  Экспортировать
+                </button>
+              </div>
+
+              {apiError && <div className={styles.errorBox}>{apiError}</div>}
+
+              {result.errors.length > 0 && (
+                <div className={styles.errorList}>
+                  {result.errors.map((error, index) => (
+                    <div key={`${error.message}-${index}`} className={styles.errorItem}>
+                      <strong>Ошибка валидации</strong>
+                      <span>{error.message}</span>
+                      {(error.lineNumber > 0 || error.linePosition > 0) && (
+                        <small>Строка {error.lineNumber}, позиция {error.linePosition}</small>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <pre className={styles.xmlPreview}>{result.xml || 'XML появится после заполнения формы'}</pre>
+            </aside>
           </div>
         </div>
       </main>

@@ -1,9 +1,10 @@
+import { Link } from 'react-router-dom'
 import styles from './Dashboard.module.css'
 
 const features = [
-  'Генерация XML',
-  'Генерация XML',
-  'Генерация XML',
+  'Генерация XML по форме',
+  'XSD-валидация перед экспортом',
+  'Экспорт валидного XML',
 ]
 
 export default function Dashboard() {
@@ -11,15 +12,15 @@ export default function Dashboard() {
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={styles.top}>
-          <h1 className={styles.title}>Генератор XML / IFC</h1>
+          <h1 className={styles.title}>Генератор XML</h1>
         </div>
 
         <div className={styles.main}>
-          <p className={styles.subtitle}>Автоматическая генерация XML и IFC файлов</p>
+          <p className={styles.subtitle}>Автоматическая генерация XML-файлов</p>
 
           <div className={styles.actions}>
-            <button className={styles.button}>Создать файл XML &gt;</button>
-            <button className={styles.button}>Создать файл IFC &gt;</button>
+            <Link to="/create-xml" className={styles.button}>Создать XML &gt;</Link>
+            <Link to="/upload" className={styles.button}>Загрузить XML &gt;</Link>
           </div>
         </div>
 

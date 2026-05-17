@@ -5,7 +5,7 @@ namespace backend.Tests;
 
 public sealed class XmlDocumentServiceTests
 {
-    private readonly XmlDocumentService service = new();
+    private readonly XmlDocumentService service = new(new TestXmlSchemaProvider());
 
     [Fact]
     public void GenerateAndValidate_ReturnsValidXml_ForCompleteRequest()
@@ -117,5 +117,27 @@ public sealed class XmlDocumentServiceTests
             TeamMembers = ["Петров"],
             FunctionalPurposes = ["Жилое"]
         };
+    }
+
+    private sealed class TestXmlSchemaProvider : IXmlSchemaProvider
+    {
+        public string GetProjectSchema()
+        {
+            var currentDirectory = Directory.GetCurrentDirectory();
+
+            while (currentDirectory is not null)
+            {
+                var schemaPath = Path.Combine(currentDirectory, "backend", "Schemas", "construction-project.xsd");
+
+                if (File.Exists(schemaPath))
+                {
+                    return File.ReadAllText(schemaPath);
+                }
+
+                currentDirectory = Directory.GetParent(currentDirectory)?.FullName;
+            }
+
+            throw new FileNotFoundException("Тестовая XSD-схема не найдена.");
+        }
     }
 }

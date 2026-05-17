@@ -8,75 +8,12 @@ namespace XML_IFC_generator.Services;
 
 public sealed class XmlDocumentService : IXmlDocumentService
 {
-    private const string ProjectXsd = """
-        <?xml version="1.0" encoding="utf-8"?>
-        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-          <xs:element name="ConstructionProject">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="BasicInfo">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="ObjectName">
-                        <xs:simpleType>
-                          <xs:restriction base="xs:string">
-                            <xs:minLength value="1" />
-                          </xs:restriction>
-                        </xs:simpleType>
-                      </xs:element>
-                      <xs:element name="RegistrationNumber" type="xs:string" minOccurs="0" />
-                      <xs:element name="DocumentDate" type="xs:date" minOccurs="0" />
-                      <xs:element name="Uuid" type="xs:string" minOccurs="0" />
-                      <xs:element name="Address" type="xs:string" minOccurs="0" />
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="CadastralNumbers" minOccurs="0">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="CadastralNumber" type="xs:string" maxOccurs="unbounded" />
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="PlanningDocuments" minOccurs="0">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="GpzuNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
-                      <xs:element name="PptNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
-                      <xs:element name="GzkNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
-                      <xs:element name="KrtNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
-                      <xs:element name="PpmNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="Organization" minOccurs="0">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="Name" type="xs:string" minOccurs="0" />
-                      <xs:element name="Manager" type="xs:string" minOccurs="0" />
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="Team" minOccurs="0">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="Member" type="xs:string" maxOccurs="unbounded" />
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="WorkType" type="xs:string" minOccurs="0" />
-                <xs:element name="FunctionalPurposes" minOccurs="0">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="Purpose" type="xs:string" maxOccurs="unbounded" />
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-        </xs:schema>
-        """;
+    private readonly IXmlSchemaProvider schemaProvider;
+
+    public XmlDocumentService(IXmlSchemaProvider schemaProvider)
+    {
+        this.schemaProvider = schemaProvider;
+    }
 
     public GenerateXmlResponse GenerateAndValidate(GenerateXmlRequest request)
     {
@@ -108,7 +45,7 @@ public sealed class XmlDocumentService : IXmlDocumentService
             };
         }
 
-        var errors = ValidateAgainstProjectSchema(xml);
+        var errors = ValidateAgainstProjectSchema(xml, schemaProvider.GetProjectSchema());
 
         return new ValidateXmlResponse
         {
@@ -255,12 +192,12 @@ public sealed class XmlDocumentService : IXmlDocumentService
         return stringWriter.ToString();
     }
 
-    private static List<XmlValidationErrorDto> ValidateAgainstProjectSchema(string xml)
+    private static List<XmlValidationErrorDto> ValidateAgainstProjectSchema(string xml, string schema)
     {
         var errors = new List<XmlValidationErrorDto>();
         var schemas = new XmlSchemaSet();
 
-        using var schemaReader = XmlReader.Create(new StringReader(ProjectXsd));
+        using var schemaReader = XmlReader.Create(new StringReader(schema));
         schemas.Add(null, schemaReader);
 
         var settings = new XmlReaderSettings

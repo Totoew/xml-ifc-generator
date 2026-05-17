@@ -80,11 +80,37 @@ public sealed class XmlDocumentService : IXmlDocumentService
     public GenerateXmlResponse GenerateAndValidate(GenerateXmlRequest request)
     {
         var xml = GenerateXml(request);
-        var errors = Validate(xml);
+        var validation = Validate(xml);
 
         return new GenerateXmlResponse
         {
             Xml = xml,
+            IsValid = validation.IsValid,
+            Errors = validation.Errors
+        };
+    }
+
+    public ValidateXmlResponse Validate(string xml)
+    {
+        if (string.IsNullOrWhiteSpace(xml))
+        {
+            return new ValidateXmlResponse
+            {
+                IsValid = false,
+                Errors =
+                [
+                    new XmlValidationErrorDto
+                    {
+                        Message = "XML-файл пустой.",
+                    }
+                ]
+            };
+        }
+
+        var errors = ValidateAgainstProjectSchema(xml);
+
+        return new ValidateXmlResponse
+        {
             IsValid = errors.Count == 0,
             Errors = errors
         };
@@ -142,7 +168,7 @@ public sealed class XmlDocumentService : IXmlDocumentService
         return stringWriter.ToString();
     }
 
-    private static List<XmlValidationErrorDto> Validate(string xml)
+    private static List<XmlValidationErrorDto> ValidateAgainstProjectSchema(string xml)
     {
         var errors = new List<XmlValidationErrorDto>();
         var schemas = new XmlSchemaSet();

@@ -20,4 +20,10 @@ public sealed class XmlController : ControllerBase
     {
         return Ok(xmlDocumentService.GenerateAndValidate(request));
     }
+
+    [HttpPost("validate")]
+    public ActionResult<ValidateXmlResponse> Validate(ValidateXmlRequest request)
+    {
+        return Ok(xmlDocumentService.Validate(request.Xml));
+    }
 }

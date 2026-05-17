@@ -35,6 +35,23 @@ npm run dev
 По умолчанию frontend обращается к backend по адресу `http://localhost:5287`.
 Для другого адреса API можно задать `VITE_API_URL`.
 
+## Проверки
+
+Backend tests:
+
+```bash
+cd backend
+dotnet test XML-IFC-generator.sln
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
 ## Первый реализованный сценарий
 
 Страница `/create-xml` отправляет данные формы на backend endpoint:
@@ -69,6 +86,6 @@ POST /api/xml/parse
 ## Ближайшие задачи
 
 1. Вынести XSD-схему из кода в отдельный файл или хранилище шаблонов.
-2. Подключить тесты backend-сервиса генерации, валидации и разбора XML.
-3. Настроить CI: backend build, frontend build, lint, tests.
-4. Добавить более точное сопоставление ошибок валидации с полями формы.
+2. Настроить CI: backend build, frontend build, lint, tests.
+3. Добавить более точное сопоставление ошибок валидации с полями формы.
+4. Добавить frontend-тесты для upload/create XML сценариев.

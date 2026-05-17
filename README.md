@@ -59,11 +59,44 @@ docker compose up -d
 
 После запуска:
 
-- frontend: `http://localhost:8080`;
+- frontend: `http://localhost:8083`;
 - backend API: `http://localhost:5287`;
 - PostgreSQL: `localhost:5432`.
 
 Frontend-контейнер отдает статическую сборку через nginx и проксирует `/api` на backend внутри compose-сети.
+Backend и PostgreSQL по умолчанию привязаны к `127.0.0.1`, наружу открыт только frontend-порт.
+
+## CD
+
+Деплой на сервер настроен через GitHub Actions workflow `.github/workflows/deploy.yml`.
+Он запускается на каждый `push` в `main` и вручную через `workflow_dispatch`.
+
+Workflow:
+
+1. Берет код из репозитория.
+2. Копирует проект на сервер по SSH/SCP.
+3. На сервере выполняет:
+
+```bash
+docker compose config
+docker compose build
+docker compose up -d --remove-orphans
+docker compose ps
+```
+
+Для работы деплоя нужно добавить GitHub Secrets:
+
+```text
+DEPLOY_HOST=148.253.210.27
+DEPLOY_USER=root
+DEPLOY_PASSWORD=<пароль сервера>
+DEPLOY_PORT=22
+DEPLOY_PATH=/opt/xml-ifc-generator
+POSTGRES_PASSWORD=<пароль PostgreSQL для приложения>
+```
+
+На сервере в `${DEPLOY_PATH}/.env` можно переопределить порты и пароль БД.
+Для текущего сервера выбран свободный frontend-порт `8083`.
 
 ## Проверки
 

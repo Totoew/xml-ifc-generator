@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-xml_generator}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-xml_generator_password}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_BIND_HOST:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -30,7 +30,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "${BACKEND_PORT:-5287}:8080"
+      - "${BACKEND_BIND_HOST:-127.0.0.1}:${BACKEND_PORT:-5287}:8080"
 
   frontend:
     container_name: xml-generator-frontend
@@ -43,7 +43,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "${FRONTEND_PORT:-8080}:80"
+      - "${FRONTEND_PORT:-8083}:80"
 
 volumes:
   postgres-data:

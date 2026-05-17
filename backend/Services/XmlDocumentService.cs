@@ -1,5 +1,6 @@
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
 using XML_IFC_generator.Contracts.Xml;
 
@@ -114,6 +115,92 @@ public sealed class XmlDocumentService : IXmlDocumentService
             IsValid = errors.Count == 0,
             Errors = errors
         };
+    }
+
+    public ParseXmlResponse Parse(string xml)
+    {
+        var validation = Validate(xml);
+
+        if (!validation.IsValid)
+        {
+            return new ParseXmlResponse
+            {
+                IsValid = false,
+                Errors = validation.Errors
+            };
+        }
+
+        try
+        {
+            var document = XDocument.Parse(xml);
+            var root = document.Root;
+
+            if (root is null)
+            {
+                return new ParseXmlResponse
+                {
+                    IsValid = false,
+                    Errors =
+                    [
+                        new XmlValidationErrorDto
+                        {
+                            Message = "Корневой элемент XML не найден.",
+                        }
+                    ]
+                };
+            }
+
+            var basicInfo = root.Element("BasicInfo");
+            var organization = root.Element("Organization");
+            var planningDocuments = root.Element("PlanningDocuments");
+
+            return new ParseXmlResponse
+            {
+                IsValid = true,
+                Errors = [],
+                Data = new GenerateXmlRequest
+                {
+                    Basic = new BasicInfoDto
+                    {
+                        Name = ElementValue(basicInfo, "ObjectName"),
+                        RegistrationNumber = ElementValue(basicInfo, "RegistrationNumber"),
+                        Date = ElementValue(basicInfo, "DocumentDate"),
+                        Uuid = ElementValue(basicInfo, "Uuid"),
+                        Address = ElementValue(basicInfo, "Address")
+                    },
+                    Organization = new OrganizationDto
+                    {
+                        Name = ElementValue(organization, "Name"),
+                        Manager = ElementValue(organization, "Manager")
+                    },
+                    WorkType = ElementValue(root, "WorkType"),
+                    CadastralNumbers = ElementValues(root.Element("CadastralNumbers"), "CadastralNumber"),
+                    GpzuNumbers = ElementValues(planningDocuments, "GpzuNumber"),
+                    PptNumbers = ElementValues(planningDocuments, "PptNumber"),
+                    GzkNumbers = ElementValues(planningDocuments, "GzkNumber"),
+                    KrtNumbers = ElementValues(planningDocuments, "KrtNumber"),
+                    PpmNumbers = ElementValues(planningDocuments, "PpmNumber"),
+                    TeamMembers = ElementValues(root.Element("Team"), "Member"),
+                    FunctionalPurposes = ElementValues(root.Element("FunctionalPurposes"), "Purpose")
+                }
+            };
+        }
+        catch (XmlException exception)
+        {
+            return new ParseXmlResponse
+            {
+                IsValid = false,
+                Errors =
+                [
+                    new XmlValidationErrorDto
+                    {
+                        Message = exception.Message,
+                        LineNumber = exception.LineNumber,
+                        LinePosition = exception.LinePosition
+                    }
+                ]
+            };
+        }
     }
 
     private static string GenerateXml(GenerateXmlRequest request)
@@ -253,6 +340,20 @@ public sealed class XmlDocumentService : IXmlDocumentService
     private static bool HasValue(string? value)
     {
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static string ElementValue(XContainer? container, string elementName)
+    {
+        return container?.Element(elementName)?.Value.Trim() ?? string.Empty;
+    }
+
+    private static List<string> ElementValues(XContainer? container, string elementName)
+    {
+        return container?
+            .Elements(elementName)
+            .Select(element => element.Value.Trim())
+            .Where(HasValue)
+            .ToList() ?? [];
     }
 
     private sealed class Utf8StringWriter : StringWriter

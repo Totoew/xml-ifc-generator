@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { validateXml } from '../api/xmlApi'
+import { parseXml, validateXml } from '../api/xmlApi'
 import styles from './Upload.module.css'
 
 export default function Upload() {
@@ -9,6 +10,7 @@ export default function Upload() {
   const [file, setFile] = useState(null)
   const [xml, setXml] = useState('')
   const [validation, setValidation] = useState(null)
+  const [parsedData, setParsedData] = useState(null)
   const [isChecking, setIsChecking] = useState(false)
   const [error, setError] = useState('')
 
@@ -20,6 +22,7 @@ export default function Upload() {
     setFile(selectedFile)
     setXml('')
     setValidation(null)
+    setParsedData(null)
     setError('')
 
     if (!selectedFile.name.toLowerCase().endsWith('.xml')) {
@@ -37,8 +40,17 @@ export default function Upload() {
       setValidation(result)
 
       if (result.isValid) {
+        const parsed = await parseXml(text)
+
+        if (!parsed.isValid || !parsed.data) {
+          setValidation(parsed)
+          return
+        }
+
+        setParsedData(parsed.data)
         sessionStorage.setItem('uploadedXmlDraft', text)
         sessionStorage.setItem('uploadedXmlFileName', selectedFile.name)
+        sessionStorage.setItem('xmlFormDraft', JSON.stringify(parsed.data))
       }
     } catch (validationError) {
       setError(validationError.message)
@@ -112,6 +124,14 @@ export default function Upload() {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {validation?.isValid && parsedData && (
+              <div className={styles.actionRow}>
+                <Link className={styles.editorLink} to="/create-xml">
+                  Открыть в редакторе
+                </Link>
               </div>
             )}
 

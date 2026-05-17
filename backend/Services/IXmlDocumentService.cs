@@ -6,4 +6,5 @@ public interface IXmlDocumentService
 {
     GenerateXmlResponse GenerateAndValidate(GenerateXmlRequest request);
     ValidateXmlResponse Validate(string xml);
+    ParseXmlResponse Parse(string xml);
 }

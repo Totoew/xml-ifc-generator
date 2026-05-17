@@ -161,6 +161,30 @@
   word-break: break-word;
 }
 
+.actionRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.editorLink {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 6px;
+  background: #c0392b;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.editorLink:hover {
+  background: #a93226;
+}
+
 @media (max-width: 720px) {
   .main {
     padding: 40px 16px;

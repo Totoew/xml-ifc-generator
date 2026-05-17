@@ -1,14 +1,23 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { generateXml } from '../api/xmlApi'
 import styles from './CreateXML.module.css'
 
 function useList(initial = ['']) {
   const [items, setItems] = useState(initial)
-  const add = () => setItems([...items, ''])
-  const remove = (i) => setItems(items.filter((_, idx) => idx !== i))
-  const change = (i, val) => setItems(items.map((v, idx) => (idx === i ? val : v)))
-  return { items, add, remove, change }
+  const add = useCallback(() => setItems((currentItems) => [...currentItems, '']), [])
+  const remove = useCallback((i) => {
+    setItems((currentItems) => currentItems.filter((_, idx) => idx !== i))
+  }, [])
+  const change = useCallback((i, val) => {
+    setItems((currentItems) => currentItems.map((v, idx) => (idx === i ? val : v)))
+  }, [])
+  const replace = useCallback((nextItems) => setItems(normalizeList(nextItems)), [])
+  return { items, add, remove, change, replace }
+}
+
+function normalizeList(items, fallback = ['']) {
+  return Array.isArray(items) && items.length > 0 ? items : fallback
 }
 
 function RepeatableField({ label, hint, items, onAdd, onRemove, onChange }) {
@@ -45,6 +54,14 @@ export default function CreateXML() {
   const team = useList(['', ''])
   const [workType, setWorkType] = useState('')
   const purposes = useList(['', ''])
+  const replaceCadastral = cadastral.replace
+  const replaceGpzu = gpzu.replace
+  const replacePpt = ppt.replace
+  const replaceGzk = gzk.replace
+  const replaceKrt = krt.replace
+  const replacePpm = ppm.replace
+  const replaceTeam = team.replace
+  const replacePurposes = purposes.replace
   const [fileName, setFileName] = useState('construction-project.xml')
   const [result, setResult] = useState({ xml: '', isValid: false, errors: [] })
   const [isGenerating, setIsGenerating] = useState(false)
@@ -72,6 +89,50 @@ export default function CreateXML() {
     teamMembers: team.items,
     functionalPurposes: purposes.items,
   }), [basic, cadastral.items, gpzu.items, gzk.items, krt.items, org, ppm.items, ppt.items, purposes.items, team.items, workType])
+
+  useEffect(() => {
+    const storedDraft = sessionStorage.getItem('xmlFormDraft')
+
+    if (!storedDraft) {
+      return
+    }
+
+    try {
+      const draft = JSON.parse(storedDraft)
+
+      setBasic({
+        name: draft.basic?.name ?? '',
+        regNum: draft.basic?.registrationNumber ?? '',
+        date: draft.basic?.date ?? '',
+        uuid: draft.basic?.uuid ?? '',
+        address: draft.basic?.address ?? '',
+      })
+      setOrg({
+        name: draft.organization?.name ?? '',
+        manager: draft.organization?.manager ?? '',
+      })
+      setWorkType(draft.workType ?? '')
+      replaceCadastral(draft.cadastralNumbers)
+      replaceGpzu(draft.gpzuNumbers)
+      replacePpt(draft.pptNumbers)
+      replaceGzk(draft.gzkNumbers)
+      replaceKrt(draft.krtNumbers)
+      replacePpm(draft.ppmNumbers)
+      replaceTeam(draft.teamMembers)
+      replacePurposes(draft.functionalPurposes)
+
+      const uploadedFileName = sessionStorage.getItem('uploadedXmlFileName')
+      if (uploadedFileName) {
+        setFileName(uploadedFileName)
+      }
+    } catch {
+      sessionStorage.removeItem('xmlFormDraft')
+    }
+  }, [replaceCadastral, replaceGpzu, replaceGzk, replaceKrt, replacePpm, replacePpt, replacePurposes, replaceTeam])
+
+  useEffect(() => {
+    sessionStorage.setItem('xmlFormDraft', JSON.stringify(payload))
+  }, [payload])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(async () => {

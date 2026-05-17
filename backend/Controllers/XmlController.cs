@@ -26,4 +26,10 @@ public sealed class XmlController : ControllerBase
     {
         return Ok(xmlDocumentService.Validate(request.Xml));
     }
+
+    [HttpPost("parse")]
+    public ActionResult<ParseXmlResponse> Parse(ParseXmlRequest request)
+    {
+        return Ok(xmlDocumentService.Parse(request.Xml));
+    }
 }

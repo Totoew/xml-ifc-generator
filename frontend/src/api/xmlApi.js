@@ -31,3 +31,19 @@ export async function validateXml(xml) {
 
   return response.json()
 }
+
+export async function parseXml(xml) {
+  const response = await fetch(`${API_BASE_URL}/api/xml/parse`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ xml }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Не удалось прочитать XML')
+  }
+
+  return response.json()
+}

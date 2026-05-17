@@ -35,6 +35,36 @@ npm run dev
 По умолчанию frontend обращается к backend по адресу `http://localhost:5287`.
 Для другого адреса API можно задать `VITE_API_URL`.
 
+## Docker
+
+Для контейнерного запуска используется `docker-compose.yml`.
+
+Скопируйте пример переменных окружения и при необходимости поменяйте пароль БД:
+
+```bash
+cp .env.example .env
+```
+
+Сборка образов:
+
+```bash
+docker compose build
+```
+
+Запуск стека:
+
+```bash
+docker compose up -d
+```
+
+После запуска:
+
+- frontend: `http://localhost:8080`;
+- backend API: `http://localhost:5287`;
+- PostgreSQL: `localhost:5432`.
+
+Frontend-контейнер отдает статическую сборку через nginx и проксирует `/api` на backend внутри compose-сети.
+
 ## Проверки
 
 Backend tests:
@@ -103,5 +133,5 @@ backend/Schemas/construction-project.xsd
 
 1. Добавить более точное сопоставление ошибок валидации с полями формы.
 2. Добавить frontend-тесты для upload/create XML сценариев.
-3. Подготовить Docker Compose для локального и серверного запуска.
-4. Развить хранение нескольких XSD-шаблонов.
+3. Развить хранение нескольких XSD-шаблонов.
+4. Добавить миграции/инициализацию БД при контейнерном запуске.
